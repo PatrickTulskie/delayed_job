@@ -139,6 +139,58 @@ describe Delayed::Job do
     Delayed::Job.find_available(1).length.should == 0
   end
 
+  it "should record time when it was picked up by the first worker" do
+    default = Delayed::Job.destroy_successful_jobs
+    Delayed::Job.destroy_successful_jobs = false
+    @job = Delayed::Job.create :payload_object => SimpleJob.new
+
+    @job.reload.first_started_at.should == nil
+    @job.reload.last_started_at.should == nil
+    Delayed::Job.work_off
+    @job.reload.first_started_at.should_not == nil
+    @job.reload.last_started_at.should_not == nil
+
+    Delayed::Job.destroy_successful_jobs = default
+  end
+
+  it "should not update first_started_at on retries" do
+    default = Delayed::Job.destroy_successful_jobs
+    Delayed::Job.destroy_successful_jobs = false
+    @job = Delayed::Job.create :payload_object => ErrorJob.new
+
+    Delayed::Job.work_off
+    first_started_at = @job.reload.first_started_at
+
+    @job.run_at = Time.now
+    @job.save!
+    time = Time.now + 1.hour
+    Time.stub!(:now).and_return(time)
+    Delayed::Job.work_off
+
+    @job.reload.first_started_at.should == first_started_at
+
+    Delayed::Job.destroy_successful_jobs = default
+  end
+
+  it "should update last_started_at on retries" do
+    default = Delayed::Job.destroy_successful_jobs
+    Delayed::Job.destroy_successful_jobs = false
+    @job = Delayed::Job.create :payload_object => ErrorJob.new
+
+    Delayed::Job.work_off
+    first_started_at = @job.reload.first_started_at
+
+    @job.run_at = Time.now
+    @job.save!
+    time = Time.now + 1.hour
+    Time.stub!(:now).and_return(time)
+    Delayed::Job.work_off
+
+    @job.reload.last_started_at.should_not == first_started_at
+
+    Delayed::Job.destroy_successful_jobs = default
+  end
+
   it "should re-schedule by about 1 second at first and increment this more and more minutes when it fails to execute properly" do
     Delayed::Job.enqueue ErrorJob.new
     Delayed::Job.work_off(1)
