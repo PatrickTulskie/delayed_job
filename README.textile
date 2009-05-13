@@ -141,6 +141,7 @@ Same thing for successful jobs. They're deleted by default and, to keep them, se
 
 Here is an example of changing job parameters in Rails:
 
+<pre><code>
   # config/initializers/delayed_job_config.rb
   Delayed::Job.destroy_failed_jobs = false
   Delayed::Job.destroy_successful_jobs = false
@@ -148,6 +149,7 @@ Here is an example of changing job parameters in Rails:
     Delayed::Job.const_set("MAX_ATTEMPTS", 3)
     Delayed::Job.const_set("MAX_RUN_TIME", 5.minutes)
   end
+</code></pre>
 
 Note: If your error messages are long, consider changing last_error field to a :text instead of a :string (255 character limit).
 
