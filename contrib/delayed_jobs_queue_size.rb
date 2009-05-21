@@ -35,7 +35,8 @@ jobs.type GAUGE
                       @db_conf['database'], @db_conf['port'],
                       @db_conf['socket'])
     result = mysql.query("SELECT count(*) FROM delayed_jobs WHERE \
-                       first_started_at IS NULL OR run_at > NOW()")
+                         locked_at IS NULL AND failed_at IS NULL AND \
+                         finished_at IS NULL")
     value = result.fetch_hash.values.first
     puts "jobs.value #{value}"
   end
