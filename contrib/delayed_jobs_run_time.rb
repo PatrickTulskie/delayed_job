@@ -38,7 +38,7 @@ avg_run_time.type GAUGE
     # get jobs that finished since the last poll, i.e. in the last 5 minutes
     result = mysql.query("SELECT first_started_at, finished_at \
                         FROM delayed_jobs WHERE \
-                       finished_at > NOW() - 5000 * 60")
+                       finished_at > NOW() - 5 * 60")
     
     value = 0.0
     result.each_hash do |hash|
