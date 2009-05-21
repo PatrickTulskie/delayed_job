@@ -103,7 +103,7 @@ Note: The rake task will exit if the database has any network connectivity probl
 
 h3. Cleaning up
 
-You can invoke @rake jobs:clear@ to delete all jobs in the queue.
+You can invoke @rake jobs:clear@ to delete all jobs in the queue. There are also the self-explanatory @rake jobs:clear:finished@ and @rake jobs:clear:failed@.
 
 h3. Changes
 
