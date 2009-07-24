@@ -184,6 +184,10 @@ If you want to contribute an enhancement or a fix:
 
 h3. Changes
 
+* 1.8.1 Restructured the initial migration template, added fields for tracking jobs in queue, and defaulted the queue over to not purge completed jobs.  Much of this code came from Helder's branch.
+
+* 1.8.0: Version number was bumped by collectiveidea's fork.  TODO Document specifically what's different.
+
 * 1.7.0: Added failed_at column which can optionally be set after a certain amount of failed job attempts. By default failed job attempts are destroyed after about a month. 
 
 * 1.6.0: Renamed locked_until to locked_at. We now store when we start a given job instead of how long it will be locked by the worker. This allows us to get a reading on how long a job took to execute.                    
@@ -196,4 +200,4 @@ h3. Changes
 
 h3. Why Is This Fork Different?
 
-Patrick composed this of collectiveidea's fork and helder's fork because collective idea was more feature complete and helder had additional features I require.
+Patrick composed this of collectiveidea's fork and helder's fork because collective idea was more feature complete and helder had additional features he requires.
