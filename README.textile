@@ -193,3 +193,6 @@ h3. Changes
 * 1.2.0: Added #send_later to Object for simpler job creation
 
 * 1.0.0: Initial release
+
+h3. Why Is This Fork Different?
+Patrick composed this of collectiveidea's fork and helder's fork because collective idea was more feature complete and helder had additional features I require.
