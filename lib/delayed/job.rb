@@ -96,14 +96,21 @@ module Delayed
       end
 
       begin
-        runtime =  Benchmark.realtime do
-          now = Time.now
-          update_attribute(:first_started_at, now) if first_started_at.nil?
-          update_attribute(:last_started_at, now)
+        begin_time = Time.now
+        runtime = Benchmark.realtime do
+          update_attribute(:first_started_at, begin_time) if first_started_at.nil?
+          update_attribute(:last_started_at, begin_time)
+          update_attribute(:time_in_queue, begin_time - created_at )
           invoke_job # TODO: raise error if takes longer than max_run_time
         end
-        destroy_successful_jobs ? destroy :
-          update_attribute(:finished_at, Time.now)
+        if destroy_successful_jobs
+          destroy
+        else
+          end_time = Time.now
+          update_attribute(:finished_at, end_time)
+          update_attribute(:completion_time, ( end_time - begin_time ))
+          update_attribute(:completed_by, worker_name)
+        end
         # TODO: warn if runtime > max_run_time ?
         logger.info "* [JOB] #{name} completed after %.4f" % runtime
         return true  # did work

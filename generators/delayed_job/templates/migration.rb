@@ -12,6 +12,9 @@ class CreateDelayedJobs < ActiveRecord::Migration
       t.datetime :first_started_at             # Needed for task tracking
       t.datetime :last_started_at              # Needed for task tracking
       t.datetime :finished_at                  # Needed for when you are not deleting items from the table on completion
+      t.float    :completion_time              # Time in seconds that it took for the job to complete
+      t.float    :time_in_queue                # Time in seconds that the item sat in queue
+      t.string   :completed_by                 # The name of the worker that completed the job
       t.timestamps
     end
 
