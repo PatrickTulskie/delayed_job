@@ -18,11 +18,11 @@ module Delayed
     cattr_accessor :destroy_failed_jobs
     self.destroy_failed_jobs = true
 
-    # By default successful jobs are destroyed after finished.
-    # If you want to keep them around (for statistics/monitoring),
-    # set this to false.
+    # By default successful jobs are retained after completion and set with a finished_at stamp.
+    # There are rake tasks which should be cron'd for cleaning these up.
+    # To destroy on completion, simply change the value in your application's initializer.
     cattr_accessor :destroy_successful_jobs
-    self.destroy_successful_jobs = true
+    self.destroy_successful_jobs = false
 
     # Every worker has a unique name which by default is the pid of the process.
     # There are some advantages to overriding this with something which survives worker retarts:
@@ -98,18 +98,16 @@ module Delayed
       begin
         begin_time = Time.now
         runtime = Benchmark.realtime do
-          update_attribute(:first_started_at, begin_time) if first_started_at.nil?
-          update_attribute(:last_started_at, begin_time)
-          update_attribute(:time_in_queue, begin_time - created_at )
+          initial_attributes = { :last_started_at => begin_time }
+          initial_attributes.merge!({ :first_started_at => begin_time, :time_in_queue => ( begin_time - run_at ) }) if first_started_at.nil?
+          update_attributes(initial_attributes)
           invoke_job # TODO: raise error if takes longer than max_run_time
         end
         if destroy_successful_jobs
           destroy
         else
           end_time = Time.now
-          update_attribute(:finished_at, end_time)
-          update_attribute(:completion_time, ( end_time - begin_time ))
-          update_attribute(:completed_by, worker_name)
+          update_attributes({ :finished_at => end_time, :completion_time => ( end_time - run_at ), :completed_by => worker_name })
         end
         # TODO: warn if runtime > max_run_time ?
         logger.info "* [JOB] #{name} completed after %.4f" % runtime
